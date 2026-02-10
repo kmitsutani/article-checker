@@ -1,0 +1,14 @@
+# Email Configuration
+# Copy this file to email.yaml and fill in your credentials
+
+smtp:
+  server: smtp.gmail.com
+  port: 587
+  use_tls: true
+  use_ssl: false
+  username: your-email@gmail.com
+  password: your-app-password  # Use Gmail App Password, not regular password
+
+email:
+  from: your-email@gmail.com
+  to: recipient@example.com

@@ -1,0 +1,45 @@
+name: Daily Paper Check
+
+on:
+  schedule:
+    # Run at 00:00 UTC (09:00 JST) every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  check-papers:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: paper-cache-${{ github.run_id }}
+          restore-keys: |
+            paper-cache-
+
+      - name: Run article checker
+        env:
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_RECEIVER: ${{ secrets.GMAIL_RECEIVER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python scripts/run.py
+
+      - name: Save cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .cache
+          key: paper-cache-${{ github.run_id }}

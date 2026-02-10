@@ -1,0 +1,13 @@
+# Article Checker Dependencies
+
+# RSS feed parsing
+feedparser>=6.0.0
+
+# HTTP requests (Semantic Scholar API)
+requests>=2.28.0
+
+# Configuration
+PyYAML>=6.0
+
+# LaTeX to MathML conversion
+latex2mathml>=3.77.0

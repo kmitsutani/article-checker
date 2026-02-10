@@ -1,0 +1,106 @@
+# Article Checker - Feed Configuration
+#
+# This file defines which RSS feeds to monitor and filtering rules.
+
+# arXiv feeds
+arxiv:
+  - category: hep-th
+    name: "High Energy Physics - Theory"
+    url: "http://export.arxiv.org/rss/hep-th"
+    filters:
+      keywords:
+        enabled: true
+        include:
+          - "axiomatic quantum field theory"
+          - "algebraic quantum field theory"
+          - "AQFT"
+          - "Ryu-Takayanagi"
+          - "measurement-induced"
+          - "resource theory"
+          - "resource theoretic"
+          - "Haag"
+          - "LSZ"
+          - "conformal bootstrap"
+          - "duality"
+          - "non-perturbative"
+          - "Yang Mills"
+          - "Renormalization Group"
+          - "MERA"
+        exclude: []
+      h_index:
+        enabled: false
+        min_h_index: 15
+        check_first_n_authors: 3
+
+  - category: math-ph
+    name: "Mathematical Physics"
+    url: "http://export.arxiv.org/rss/math-ph"
+    filters:
+      keywords:
+        enabled: true
+        include:
+          - "axiomatic quantum field theory"
+          - "algebraic quantum field theory"
+          - "AQFT"
+          - "conformal bootstrap"
+        exclude: []
+
+  - category: quant-ph
+    name: "Quantum Physics"
+    url: "http://export.arxiv.org/rss/quant-ph"
+    filters:
+      keywords:
+        enabled: true
+        include:
+          - "quantum algorithm"
+          - "quantum computing"
+          - "variational quantum"
+          - "VQE"
+          - "QAOA"
+          - "quantum error correction"
+          - "quantum machine learning"
+          - "resource theory"
+          - "measurement-induced"
+        exclude:
+          - "cosmology"
+
+# Journal feeds
+journals:
+  - name: "PRX Quantum"
+    url: "https://feeds.aps.org/rss/recent/prxquantum.xml"
+    open_access: true
+    filters:
+      keywords:
+        enabled: false  # Journal papers are already curated
+
+  - name: "Physical Review Letters"
+    url: "https://feeds.aps.org/rss/recent/prl.xml"
+    open_access: false
+    filters:
+      keywords:
+        enabled: true
+        include:
+          - "quantum"
+          - "entanglement"
+          - "field theory"
+        exclude: []
+
+  - name: "Nature Quantum Information"
+    url: "https://www.nature.com/npjqi.rss"
+    open_access: true
+    filters:
+      keywords:
+        enabled: false
+
+  - name: "Quantum"
+    url: "https://quantum-journal.org/feed/"
+    open_access: true
+    filters:
+      keywords:
+        enabled: false
+
+# Global settings
+settings:
+  max_papers_per_run: 50  # Maximum papers to process per run
+  evaluate_authors: true   # Whether to fetch author metrics from Semantic Scholar
+  max_authors_to_evaluate: 5  # Limit API calls per paper
