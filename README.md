@@ -21,12 +21,22 @@ source venv/bin/activate
 # 依存関係インストール
 pip install -r requirements.txt
 
-# 設定ファイル準備
-cp config/email.yaml.example config/email.yaml
-# email.yaml を編集して SMTP 設定を入力
+# 環境変数を設定（下記参照）
 ```
 
 ## 設定
+
+### 環境変数（必須）
+
+メール送信に必要な認証情報は環境変数で設定します（セキュリティのため）:
+
+```bash
+export GMAIL_SENDER="your-email@gmail.com"
+export GMAIL_RECEIVER="recipient@example.com"
+export GMAIL_APP_PASSWORD="your-app-password"
+```
+
+GitHub Actions では Repository Secrets として設定してください。
 
 ### config/feeds.yaml
 
@@ -44,33 +54,8 @@ arxiv:
 
 journals:
   - name: "PRX Quantum"
-    url: "https://journals.aps.org/prxquantum/rss"
+    url: "https://feeds.aps.org/rss/recent/prxquantum.xml"
     open_access: true
-```
-
-### config/email.yaml
-
-SMTP とメール設定:
-
-```yaml
-smtp:
-  server: smtp.gmail.com
-  port: 587
-  use_tls: true
-  username: your-email@gmail.com
-  password: your-app-password
-
-email:
-  from: your-email@gmail.com
-  to: recipient@example.com
-```
-
-または環境変数で設定:
-
-```bash
-export GMAIL_SENDER="your-email@gmail.com"
-export GMAIL_RECEIVER="recipient@example.com"
-export GMAIL_APP_PASSWORD="your-app-password"
 ```
 
 ## 使用方法

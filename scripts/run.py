@@ -31,30 +31,24 @@ logger = logging.getLogger(__name__)
 def load_config(config_dir: Path) -> tuple[dict, dict]:
     """Load feed and email configurations."""
     feeds_path = config_dir / "feeds.yaml"
-    email_path = config_dir / "email.yaml"
 
     with open(feeds_path, "r") as f:
         feeds_config = yaml.safe_load(f)
 
-    # Email config can come from file or environment variables
-    if email_path.exists():
-        with open(email_path, "r") as f:
-            email_config = yaml.safe_load(f)
-    else:
-        # Fall back to environment variables
-        email_config = {
-            "smtp": {
-                "server": os.getenv("SMTP_SERVER", "smtp.gmail.com"),
-                "port": int(os.getenv("SMTP_PORT", "587")),
-                "use_tls": True,
-                "username": os.getenv("GMAIL_SENDER", ""),
-                "password": os.getenv("GMAIL_APP_PASSWORD", ""),
-            },
-            "email": {
-                "from": os.getenv("GMAIL_SENDER", ""),
-                "to": os.getenv("GMAIL_RECEIVER", ""),
-            },
-        }
+    # Email config from environment variables only (for security)
+    email_config = {
+        "smtp": {
+            "server": os.getenv("SMTP_SERVER", "smtp.gmail.com"),
+            "port": int(os.getenv("SMTP_PORT", "587")),
+            "use_tls": True,
+            "username": os.getenv("GMAIL_SENDER", ""),
+            "password": os.getenv("GMAIL_APP_PASSWORD", ""),
+        },
+        "email": {
+            "from": os.getenv("GMAIL_SENDER", ""),
+            "to": os.getenv("GMAIL_RECEIVER", ""),
+        },
+    }
 
     return feeds_config, email_config
 

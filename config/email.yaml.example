@@ -1,14 +1,20 @@
 # Email Configuration
-# Copy this file to email.yaml and fill in your credentials
-
-smtp:
-  server: smtp.gmail.com
-  port: 587
-  use_tls: true
-  use_ssl: false
-  username: your-email@gmail.com
-  password: your-app-password  # Use Gmail App Password, not regular password
-
-email:
-  from: your-email@gmail.com
-  to: recipient@example.com
+#
+# This project uses ENVIRONMENT VARIABLES for email configuration.
+# Do NOT create email.yaml - it will be ignored for security reasons.
+#
+# Required environment variables:
+#   GMAIL_SENDER      - Your Gmail address (sender)
+#   GMAIL_RECEIVER    - Recipient email address
+#   GMAIL_APP_PASSWORD - Gmail App Password (not regular password)
+#
+# Optional environment variables:
+#   SMTP_SERVER - SMTP server (default: smtp.gmail.com)
+#   SMTP_PORT   - SMTP port (default: 587)
+#
+# For GitHub Actions, set these as repository secrets.
+#
+# For local development:
+#   export GMAIL_SENDER="your-email@gmail.com"
+#   export GMAIL_RECEIVER="recipient@example.com"
+#   export GMAIL_APP_PASSWORD="your-app-password"
