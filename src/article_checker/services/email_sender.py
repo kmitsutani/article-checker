@@ -69,7 +69,7 @@ class EmailSender:
         if len(title) > 60:
             title = title[:57] + "..."
 
-        emoji = paper.get_score_emoji()
+        emoji = paper.get_score_emoji() if paper.source.startswith("arxiv") else ""
         symbol = paper.source_symbol or paper.source
 
         return f"{emoji} [{symbol}] {title}"
