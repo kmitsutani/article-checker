@@ -227,6 +227,15 @@ class EmailSender:
         <div class="meta">{citation_label}</div>
 """
 
+        # Authors list (always shown)
+        if paper.authors:
+            author_names = ", ".join(a.name.fullname for a in paper.authors)
+            html += f"""
+        <div class="meta">
+            Authors: {author_names}
+        </div>
+"""
+
         # Score badge
         if paper.max_h_index > 0:
             html += f"""
