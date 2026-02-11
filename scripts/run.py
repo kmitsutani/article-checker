@@ -6,16 +6,13 @@ Fetches papers from configured sources, evaluates authors,
 and sends individual email notifications for each paper.
 """
 
-import sys
-import os
-import logging
 import argparse
+import logging
+import os
+import sys
 from pathlib import Path
 
 import yaml
-
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from article_checker.sources import ArxivSource, JournalSource
 from article_checker.services import AuthorEvaluator, EmailSender, CacheManager
