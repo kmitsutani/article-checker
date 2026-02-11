@@ -22,24 +22,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Restore cache
-        uses: actions/cache@v4
-        with:
-          path: .cache
-          key: paper-cache-${{ github.run_id }}
-          restore-keys: |
-            paper-cache-
-
       - name: Run article checker
         env:
           GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
           GMAIL_RECEIVER: ${{ secrets.GMAIL_RECEIVER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+          GH_GIST_TOKEN: ${{ secrets.GH_GIST_TOKEN }}
         run: python scripts/run.py
-
-      - name: Save cache
-        uses: actions/cache/save@v4
-        if: always()
-        with:
-          path: .cache
-          key: paper-cache-${{ github.run_id }}

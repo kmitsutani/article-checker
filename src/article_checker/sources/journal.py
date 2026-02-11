@@ -80,7 +80,7 @@ class JournalSource(BaseSource):
         is_open_access = self.config.get("open_access", False)
 
         return Paper(
-            id=entry.get("id", entry.get("link", "")),
+            id=doi or entry.get("id", entry.get("link", "")),
             title=self._clean_title(entry.get("title", "")),
             url=entry.get("link", ""),
             source=self.config.get("name", "Journal"),

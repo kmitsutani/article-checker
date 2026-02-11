@@ -85,6 +85,7 @@ class ArxivSource(BaseSource):
             authors=authors,
             published=published,
             arxiv_id=arxiv_id,
+            doi=f"10.48550/arXiv.{arxiv_id}" if arxiv_id else None,
             pdf_url=f"https://arxiv.org/pdf/{arxiv_id}.pdf" if arxiv_id else None,
             is_open_access=True,
         )

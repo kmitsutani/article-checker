@@ -51,7 +51,8 @@ class EmailSender:
 
         return self._send_email(subject, plain_body, html_body)
 
-    def _build_citation_label(self, paper: Paper) -> str:
+    @staticmethod
+    def build_citation_label(paper: Paper) -> str:
         """Build a short citation label like 'Smith+24_Title' or 'Smith-Jones-Lee_Title'."""
         title = paper.title.replace(" ", "")
         yy = paper.published.strftime("%y") if paper.published else ""
@@ -75,7 +76,7 @@ class EmailSender:
 
     def _build_plain_body(self, paper: Paper) -> str:
         """Build plain text email body."""
-        citation_label = self._build_citation_label(paper)
+        citation_label = self.build_citation_label(paper)
         lines = [
             f"[{self.REPO_URL}]",
             "",
@@ -119,7 +120,7 @@ class EmailSender:
         }
         badge_color = score_colors.get(paper.score_class, "#95a5a6")
 
-        citation_label = self._build_citation_label(paper)
+        citation_label = self.build_citation_label(paper)
 
         html = f"""<!DOCTYPE html>
 <html lang="ja">

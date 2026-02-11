@@ -19,7 +19,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from article_checker.sources import ArxivSource, JournalSource
 from article_checker.services import AuthorEvaluator, EmailSender, CacheManager
+from article_checker.services.gist_store import GistStore
 from article_checker.models import Paper
+
+# CSV column definitions for GistStore
+SENT_PAPERS_COLUMNS = [
+    "paper_id", "doi", "title", "source", "source_symbol", "sent_at", "citation_label",
+]
+AUTHOR_CACHE_COLUMNS = [
+    "name", "h_index", "citation_count", "paper_count", "url", "cached_at",
+]
 
 logging.basicConfig(
     level=logging.INFO,
@@ -102,8 +111,22 @@ def main():
     feeds_config, email_config = load_config(args.config_dir)
     settings = feeds_config.get("settings", {})
 
-    # Initialize services
-    cache = CacheManager(args.cache_dir)
+    # Initialize cache stores (Gist if configured, else local JSON)
+    gist_id = os.getenv("GIST_ID")
+    gist_token = os.getenv("GH_GIST_TOKEN")
+    sent_store = author_store = None
+    if gist_id and gist_token:
+        logger.info("Using GitHub Gist for cache storage")
+        sent_store = GistStore(gist_id, gist_token, "sent_papers.csv", SENT_PAPERS_COLUMNS)
+        author_store = GistStore(gist_id, gist_token, "author_cache.csv", AUTHOR_CACHE_COLUMNS)
+    else:
+        logger.info("Using local files for cache storage (GIST_ID not set)")
+
+    cache = CacheManager(
+        args.cache_dir,
+        sent_papers_store=sent_store,
+        author_cache_store=author_store,
+    )
     evaluator = AuthorEvaluator(cache)
     sender = EmailSender(email_config)
 
@@ -148,7 +171,14 @@ def main():
             logger.info("  [DRY RUN] Would send email")
         else:
             if sender.send_paper(paper):
-                cache.mark_paper_sent(paper.id, paper.title, paper.source)
+                cache.mark_paper_sent(
+                    paper.id,
+                    paper.title,
+                    paper.source,
+                    doi=paper.doi or "",
+                    source_symbol=paper.source_symbol,
+                    citation_label=EmailSender.build_citation_label(paper),
+                )
                 sent_count += 1
             else:
                 logger.warning(f"  Failed to send email for: {paper.title[:50]}")

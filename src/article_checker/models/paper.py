@@ -52,7 +52,7 @@ class Paper:
     """
 
     # Required fields
-    id: str  # Unique identifier (arXiv ID, DOI, or URL hash)
+    id: str  # DOI preferred, fallback to URL
     title: str
     url: str
     source: str  # e.g., "arXiv:hep-th", "PRX Quantum", "Nature QI"
