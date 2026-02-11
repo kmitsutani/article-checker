@@ -2,14 +2,31 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional
+from typing import List, NamedTuple, Optional
+
+
+class AuthorName(NamedTuple):
+    """Structured author name."""
+
+    firstname: str
+    lastname: str
+    fullname: str
+
+
+def parse_author_name(name: str) -> AuthorName:
+    """Parse a name string into AuthorName, splitting on the last space."""
+    name = name.strip()
+    if " " in name:
+        firstname, lastname = name.rsplit(" ", 1)
+        return AuthorName(firstname=firstname, lastname=lastname, fullname=name)
+    return AuthorName(firstname="", lastname=name, fullname=name)
 
 
 @dataclass
 class Author:
     """Represents a paper author with optional Semantic Scholar metrics."""
 
-    name: str
+    name: AuthorName
     h_index: Optional[int] = None
     citation_count: Optional[int] = None
     paper_count: Optional[int] = None
@@ -39,6 +56,7 @@ class Paper:
     title: str
     url: str
     source: str  # e.g., "arXiv:hep-th", "PRX Quantum", "Nature QI"
+    source_symbol: str = ""  # Short symbol for email subject, e.g., "arxiv/hep-th", "PRX-Q"
 
     # Optional fields with defaults
     abstract: str = ""

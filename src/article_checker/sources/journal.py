@@ -1,14 +1,14 @@
 """Journal RSS feed source implementation (APS, Nature, etc.)."""
 
-import re
 import logging
+import re
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import Any, List, Optional
 
 import feedparser
 
+from ..models import Author, Paper, parse_author_name
 from .base import BaseSource
-from ..models import Paper, Author
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,7 @@ class JournalSource(BaseSource):
             try:
                 paper = self._parse_entry(entry)
                 paper.source = journal_name
+                paper.source_symbol = self.config.get("symbol", journal_name)
 
                 # Apply keyword filter if enabled
                 if keyword_config.get("enabled", False):
@@ -113,20 +114,20 @@ class JournalSource(BaseSource):
             for author in entry.authors:
                 name = author.get("name", "")
                 if name:
-                    authors.append(Author(name=name))
+                    authors.append(Author(name=parse_author_name(name)))
 
         # Try 'author' field (single string)
         elif hasattr(entry, "author") and entry.author:
-            authors.append(Author(name=entry.author))
+            authors.append(Author(name=parse_author_name(entry.author)))
 
         # Try dc:creator field (common in some feeds)
         elif hasattr(entry, "dc_creator"):
             if isinstance(entry.dc_creator, list):
                 for name in entry.dc_creator:
                     if name:
-                        authors.append(Author(name=name))
+                        authors.append(Author(name=parse_author_name(name)))
             else:
-                authors.append(Author(name=entry.dc_creator))
+                authors.append(Author(name=parse_author_name(entry.dc_creator)))
 
         return authors
 

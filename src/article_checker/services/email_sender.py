@@ -1,11 +1,11 @@
 """Email sending service for paper notifications."""
 
-import smtplib
 import logging
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import smtplib
 from datetime import datetime
-from typing import Dict, Any
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from typing import Any, Dict
 
 from ..models import Paper
 from .mathml import convert_latex_to_mathml
@@ -22,6 +22,8 @@ class EmailSender:
     - HTML email with MathML support
     - Plain text fallback
     """
+
+    REPO_URL = "https://github.com/kmitsutani/article-checker"
 
     def __init__(self, config: Dict[str, Any]):
         """
@@ -49,6 +51,16 @@ class EmailSender:
 
         return self._send_email(subject, plain_body, html_body)
 
+    def _build_citation_label(self, paper: Paper) -> str:
+        """Build a short citation label like 'Smith+24_Title' or 'Smith-Jones-Lee_Title'."""
+        title = paper.title.replace(" ", "")
+        yy = paper.published.strftime("%y") if paper.published else ""
+        if not paper.authors:
+            return title
+        if len(paper.authors) > 3:
+            return f"{paper.authors[0].name.lastname}+{yy}_{title}"
+        return "-".join(a.name.lastname for a in paper.authors) + f"_{title}"
+
     def _build_subject(self, paper: Paper) -> str:
         """Build email subject line."""
         # Truncate title if too long
@@ -57,23 +69,25 @@ class EmailSender:
             title = title[:57] + "..."
 
         emoji = paper.get_score_emoji()
-        source = paper.source
+        symbol = paper.source_symbol or paper.source
 
-        return f"{emoji} [{source}] {title}"
+        return f"{emoji} [{symbol}] {title}"
 
     def _build_plain_body(self, paper: Paper) -> str:
         """Build plain text email body."""
+        citation_label = self._build_citation_label(paper)
         lines = [
+            f"[{self.REPO_URL}]",
+            "",
             f"Title: {paper.title}",
+            f"Citation: {citation_label}",
             f"Source: {paper.source}",
             f"URL: {paper.url}",
             "",
         ]
 
         if paper.authors:
-            author_names = ", ".join(a.name for a in paper.authors[:5])
-            if len(paper.authors) > 5:
-                author_names += " et al."
+            author_names = ", ".join(a.name.fullname for a in paper.authors)
             lines.append(f"Authors: {author_names}")
             lines.append("")
 
@@ -104,6 +118,8 @@ class EmailSender:
             "score-c": "#95a5a6",
         }
         badge_color = score_colors.get(paper.score_class, "#95a5a6")
+
+        citation_label = self._build_citation_label(paper)
 
         html = f"""<!DOCTYPE html>
 <html lang="ja">
@@ -203,8 +219,12 @@ class EmailSender:
 </head>
 <body>
     <div class="container">
+        <div class="meta" style="font-size: 0.8em; color: #bdc3c7; margin-bottom: 8px;">
+            <a href="{self.REPO_URL}" style="color: #bdc3c7;">{self.REPO_URL}</a>
+        </div>
         <span class="source-badge">{paper.source}</span>
         <h1>{paper.get_score_emoji()} {paper.title}</h1>
+        <div class="meta">{citation_label}</div>
 """
 
         # Score badge
@@ -219,7 +239,7 @@ class EmailSender:
         if paper.keywords_matched:
             html += f"""
         <div class="meta">
-            <span class="keywords">Keywords: {' • '.join(paper.keywords_matched)}</span>
+            <span class="keywords">Keywords: {" • ".join(paper.keywords_matched)}</span>
         </div>
 """
 
@@ -227,7 +247,7 @@ class EmailSender:
         if paper.published:
             html += f"""
         <div class="meta">
-            Published: {paper.published.strftime('%Y-%m-%d %H:%M')}
+            Published: {paper.published.strftime("%Y-%m-%d %H:%M")}
         </div>
 """
 
@@ -246,11 +266,13 @@ class EmailSender:
             for author in paper.authors:
                 if author.h_index is not None:
                     url = author.semantic_scholar_url or "#"
-                    citations = f"{author.citation_count:,}" if author.citation_count else "-"
+                    citations = (
+                        f"{author.citation_count:,}" if author.citation_count else "-"
+                    )
                     papers = author.paper_count if author.paper_count else "-"
                     html += f"""
             <tr>
-                <td><a href="{url}" target="_blank">{author.name}</a></td>
+                <td><a href="{url}" target="_blank">{author.name.fullname}</a></td>
                 <td>{author.h_index}</td>
                 <td>{citations}</td>
                 <td>{papers}</td>
