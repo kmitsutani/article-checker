@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 import feedparser
 
 from .base import BaseSource
-from ..models import Paper, Author
+from ..models import Paper, Author, parse_author_name
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,7 @@ class ArxivSource(BaseSource):
             try:
                 paper = self._parse_entry(entry)
                 paper.source = f"arXiv:{category}"
+                paper.source_symbol = self.config.get("symbol", f"arxiv/{category}")
 
                 # Apply keyword filter if enabled
                 if keyword_config.get("enabled", False):
@@ -84,6 +85,7 @@ class ArxivSource(BaseSource):
             authors=authors,
             published=published,
             arxiv_id=arxiv_id,
+            doi=f"10.48550/arXiv.{arxiv_id}" if arxiv_id else None,
             pdf_url=f"https://arxiv.org/pdf/{arxiv_id}.pdf" if arxiv_id else None,
             is_open_access=True,
         )
@@ -106,7 +108,7 @@ class ArxivSource(BaseSource):
 
             for name in author_names:
                 if name:
-                    authors.append(Author(name=name))
+                    authors.append(Author(name=parse_author_name(name)))
 
         return authors
 

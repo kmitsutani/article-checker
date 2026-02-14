@@ -1,7 +1,7 @@
 """Abstract base class for paper sources."""
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from ..models import Paper
 
@@ -32,7 +32,7 @@ class BaseSource(ABC):
         Returns:
             List of Paper objects
         """
-        pass
+        raise Exception("Not implemented")
 
     @abstractmethod
     def _parse_entry(self, entry: Any) -> Paper:
@@ -45,7 +45,7 @@ class BaseSource(ABC):
         Returns:
             Paper object
         """
-        pass
+        raise Exception("Not implemented")
 
     def _apply_keyword_filter(
         self, text: str, include: List[str], exclude: List[str]

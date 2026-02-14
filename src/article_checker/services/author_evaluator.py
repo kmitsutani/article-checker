@@ -61,22 +61,22 @@ class AuthorEvaluator:
         Args:
             author: Author object to populate with metrics
         """
-        if not author.name:
+        if not author.name.fullname:
             return
 
         # Check cache first
-        cached = self.cache.get_author(author.name)
+        cached = self.cache.get_author(author.name.fullname)
         if cached:
             author.h_index = cached.get("h_index")
             author.citation_count = cached.get("citation_count")
             author.paper_count = cached.get("paper_count")
             author.semantic_scholar_url = cached.get("url")
-            logger.debug(f"Cache hit for author: {author.name}")
+            logger.debug(f"Cache hit for author: {author.name.fullname}")
             return
 
         # Query Semantic Scholar API
         try:
-            data = self._search_author(author.name)
+            data = self._search_author(author.name.fullname)
             if data:
                 author.h_index = data.get("hIndex", 0)
                 author.citation_count = data.get("citationCount", 0)
@@ -85,7 +85,7 @@ class AuthorEvaluator:
 
                 # Cache the result
                 self.cache.set_author(
-                    author.name,
+                    author.name.fullname,
                     {
                         "h_index": author.h_index,
                         "citation_count": author.citation_count,
@@ -93,10 +93,10 @@ class AuthorEvaluator:
                         "url": author.semantic_scholar_url,
                     },
                 )
-                logger.debug(f"Evaluated author: {author.name} (h-index: {author.h_index})")
+                logger.debug(f"Evaluated author: {author.name.fullname} (h-index: {author.h_index})")
 
         except Exception as e:
-            logger.warning(f"Failed to evaluate author {author.name}: {e}")
+            logger.warning(f"Failed to evaluate author {author.name.fullname}: {e}")
 
     def _search_author(self, name: str) -> Optional[dict]:
         """
@@ -148,17 +148,17 @@ class AuthorEvaluator:
         """
         for author in paper.authors[:check_first_n]:
             # Check cache first
-            cached = self.cache.get_author(author.name)
+            cached = self.cache.get_author(author.name.fullname)
             if cached and cached.get("h_index", 0) >= min_h_index:
                 return True
 
             # Query API if not cached
-            data = self._search_author(author.name)
+            data = self._search_author(author.name.fullname)
             if data:
                 h_index = data.get("hIndex", 0)
                 # Cache the result
                 self.cache.set_author(
-                    author.name,
+                    author.name.fullname,
                     {
                         "h_index": h_index,
                         "citation_count": data.get("citationCount", 0),

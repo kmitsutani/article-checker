@@ -6,6 +6,7 @@
 arxiv:
   - category: hep-th
     name: "High Energy Physics - Theory"
+    symbol: "arxiv/hep-th"
     url: "http://export.arxiv.org/rss/hep-th"
     filters:
       keywords:
@@ -34,6 +35,7 @@ arxiv:
 
   - category: math-ph
     name: "Mathematical Physics"
+    symbol: "arxiv/math-ph"
     url: "http://export.arxiv.org/rss/math-ph"
     filters:
       keywords:
@@ -47,6 +49,7 @@ arxiv:
 
   - category: quant-ph
     name: "Quantum Physics"
+    symbol: "arxiv/quant-ph"
     url: "http://export.arxiv.org/rss/quant-ph"
     filters:
       keywords:
@@ -67,6 +70,7 @@ arxiv:
 # Journal feeds
 journals:
   - name: "PRX Quantum"
+    symbol: "PRX-Q"
     url: "https://feeds.aps.org/rss/recent/prxquantum.xml"
     open_access: true
     filters:
@@ -74,6 +78,7 @@ journals:
         enabled: false  # Journal papers are already curated
 
   - name: "Physical Review Letters"
+    symbol: "PRL"
     url: "https://feeds.aps.org/rss/recent/prl.xml"
     open_access: false
     filters:
@@ -86,6 +91,7 @@ journals:
         exclude: []
 
   - name: "Nature Quantum Information"
+    symbol: "Nat-QI"
     url: "https://www.nature.com/npjqi.rss"
     open_access: true
     filters:
@@ -93,6 +99,7 @@ journals:
         enabled: false
 
   - name: "Quantum"
+    symbol: "Quantum"
     url: "https://quantum-journal.org/feed/"
     open_access: true
     filters:
