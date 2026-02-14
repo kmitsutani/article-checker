@@ -80,9 +80,16 @@ class Paper:
             self.score_label = "若手研究者"
             self.score_class = "score-c"
 
+    def set_journal_score(self) -> None:
+        """Set score for journal papers (skip h-index evaluation)."""
+        self.score_label = "ジャーナル掲載"
+        self.score_class = "score-journal"
+
     def get_score_emoji(self) -> str:
         """Get emoji based on score."""
-        if self.max_h_index >= 100:
+        if self.score_class == "score-journal":
+            return "📄"
+        elif self.max_h_index >= 100:
             return "🏆"
         elif self.max_h_index >= 50:
             return "🏅"

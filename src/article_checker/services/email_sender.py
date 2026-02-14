@@ -81,7 +81,10 @@ class EmailSender:
             lines.append(f"Keywords: {', '.join(paper.keywords_matched)}")
             lines.append("")
 
-        if paper.max_h_index > 0:
+        if paper.score_class == "score-journal":
+            lines.append(f"{paper.score_label}")
+            lines.append("")
+        elif paper.max_h_index > 0:
             lines.append(f"Max h-index: {paper.max_h_index} ({paper.score_label})")
             lines.append("")
 
@@ -102,8 +105,10 @@ class EmailSender:
             "score-a": "#4ecdc4",
             "score-b": "#45b7d1",
             "score-c": "#95a5a6",
+            "score-journal": "#2ecc71",
         }
         badge_color = score_colors.get(paper.score_class, "#95a5a6")
+        is_journal = paper.score_class == "score-journal"
 
         html = f"""<!DOCTYPE html>
 <html lang="ja">
@@ -208,7 +213,13 @@ class EmailSender:
 """
 
         # Score badge
-        if paper.max_h_index > 0:
+        if is_journal:
+            html += f"""
+        <div class="score-badge">
+            {paper.score_label}
+        </div>
+"""
+        elif paper.max_h_index > 0:
             html += f"""
         <div class="score-badge">
             h-index: {paper.max_h_index} ({paper.score_label})
