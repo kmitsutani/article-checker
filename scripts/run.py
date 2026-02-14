@@ -138,10 +138,13 @@ def main():
     for i, paper in enumerate(papers, 1):
         logger.info(f"\n[{i}/{len(papers)}] Processing: {paper.title[:60]}...")
 
-        # Evaluate authors
-        if evaluate_authors and paper.authors:
+        # Evaluate authors (skip for journal papers — published in a journal is sufficient)
+        if evaluate_authors and paper.authors and paper.arxiv_id is not None:
             evaluator.evaluate_paper(paper, max_authors=max_authors)
             logger.info(f"  Max h-index: {paper.max_h_index} ({paper.score_label})")
+        elif paper.arxiv_id is None:
+            paper.set_journal_score()
+            logger.info(f"  Journal paper — skipping author evaluation")
 
         # Send email
         if args.dry_run:
