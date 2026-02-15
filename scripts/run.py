@@ -3,13 +3,15 @@
 Main entry point for article-checker.
 
 Fetches papers from configured sources, evaluates authors,
-and sends individual email notifications for each paper.
+groups papers by source, and sends batch email notifications
+(one email per source) to avoid Gmail rate limits.
 """
 
 import argparse
 import logging
 import os
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import yaml
@@ -150,15 +152,13 @@ def main():
         cache.save()
         return
 
-    # Evaluate authors and send emails
+    # ── Phase 1: Evaluate authors ──────────────────────────────────
     evaluate_authors = settings.get("evaluate_authors", True)
     max_authors = settings.get("max_authors_to_evaluate", 5)
 
-    sent_count = 0
     for i, paper in enumerate(papers, 1):
-        logger.info(f"\n[{i}/{len(papers)}] Processing: {paper.title[:60]}...")
+        logger.info(f"\n[{i}/{len(papers)}] Evaluating: {paper.title[:60]}...")
 
-        # Evaluate authors (skip for journal papers — published in a journal is sufficient)
         if evaluate_authors and paper.authors and paper.arxiv_id is not None:
             evaluator.evaluate_paper(paper, max_authors=max_authors)
             logger.info(f"  Max h-index: {paper.max_h_index} ({paper.score_label})")
@@ -166,11 +166,26 @@ def main():
             paper.set_journal_score()
             logger.info(f"  Journal paper — skipping author evaluation")
 
-        # Send email
+    # ── Phase 2: Group by source and batch send ────────────────────
+    papers_by_source: dict[str, list[Paper]] = defaultdict(list)
+    for paper in papers:
+        papers_by_source[paper.source].append(paper)
+
+    sent_count = 0
+    for source, source_papers in papers_by_source.items():
+        source_symbol = source_papers[0].source_symbol or source
+        logger.info(
+            f"\nSending batch for [{source_symbol}]: {len(source_papers)} papers"
+        )
+
         if args.dry_run:
-            logger.info("  [DRY RUN] Would send email")
-        else:
-            if sender.send_paper(paper):
+            logger.info("  [DRY RUN] Would send batch email")
+            for p in source_papers:
+                logger.info(f"    - {p.get_score_emoji()} {p.title[:60]}")
+            continue
+
+        if sender.send_batch(source, source_symbol, source_papers):
+            for paper in source_papers:
                 cache.mark_paper_sent(
                     paper.id,
                     paper.title,
@@ -180,13 +195,13 @@ def main():
                     citation_label=EmailSender.build_citation_label(paper),
                 )
                 sent_count += 1
-            else:
-                logger.warning(f"  Failed to send email for: {paper.title[:50]}")
+        else:
+            logger.warning(f"  Failed to send batch email for source: {source}")
 
     # Save cache
     cache.save()
 
-    logger.info(f"\nDone! Sent {sent_count}/{len(papers)} emails")
+    logger.info(f"\nDone! Sent {sent_count}/{len(papers)} papers in {len(papers_by_source)} batch email(s)")
 
 
 if __name__ == "__main__":
