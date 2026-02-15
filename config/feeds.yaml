@@ -77,18 +77,29 @@ journals:
       keywords:
         enabled: false  # Journal papers are already curated
 
-  - name: "Physical Review Letters"
-    symbol: "PRL"
-    url: "https://feeds.aps.org/rss/recent/prl.xml"
+  - name: "Physical Review Letters Editor's sugestions"
+    symbol: "PRL-ES"
+    url: "https://feeds.aps.org/rss/recent/prlsuggestions.xml"
     open_access: false
     filters:
       keywords:
-        enabled: true
-        include:
-          - "quantum"
-          - "entanglement"
-          - "field theory"
-        exclude: []
+        enabled: false
+
+  - name: "Physical Review A Editor's suggestions"
+    symbol: "PRA-ES"
+    url: "https://feeds.aps.org/rss/prasuggestions.xml"
+    open_access: false
+    filters:
+      keywords:
+        enabled: false
+
+  - name: "Physical Review D Editor's suggestions"
+    symbol: "PRD-ES"
+    url: "https://feeds.aps.org/rss/prdsuggestions.xml"
+    open_access: false
+    filters:
+      keywords:
+        enabled: false
 
   - name: "Nature Quantum Information"
     symbol: "Nat-QI"
